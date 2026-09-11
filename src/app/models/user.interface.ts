@@ -88,4 +88,6 @@ export interface UserPasswordUpdate {
 export interface UserResponse extends BaseResponse {
   user?: UserDTO;
   users?: UserDTO[];
+  token?: string;
+  token_type?: string;
 }

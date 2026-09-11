@@ -36,6 +36,8 @@ export class AuthService {
       users: data.users || null,
       notifications: data.notifications || null,
       notification: data.notification || null,
+      token: data.token || null,
+      token_type: data.token_type || null,
     };
   }
 
@@ -88,6 +90,9 @@ export class AuthService {
           this.currentUser.next(loginResponse.user);
 
           sessionStorage.setItem('currentUser', JSON.stringify(loginResponse.user));
+          if (loginResponse.token) {
+            sessionStorage.setItem('token', loginResponse.token);
+          }
 
           this.authStatus.next(true);
         }

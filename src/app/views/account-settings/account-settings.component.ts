@@ -5,6 +5,7 @@ import { SharedModules } from '../shared/shared_modules';
 import { AuthService } from '../../services/auth.service';
 import { UserDTO } from '../../models/user.interface';
 import { AppComponent } from '../../app.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-account-settings',
@@ -31,8 +32,7 @@ export class AccountSettingsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const host = window.location.hostname;
-    this.webhookUrl = `http://${host}:8010/api/v1/webhooks/inbound`;
+    this.webhookUrl = `${environment.baseUrl}/inbound`;
     try {
       this.user = this.authService.getCurrentUser();
     } catch {

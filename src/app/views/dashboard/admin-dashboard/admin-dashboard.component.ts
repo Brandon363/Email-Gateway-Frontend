@@ -4,6 +4,7 @@ import { MessageService } from 'primeng/api';
 import { SharedModules } from '../../shared/shared_modules';
 import { EmailRouteService } from '../../../services/email-route.service';
 import { RouteStats, WebhookLogItem } from '../../../models/route.interface';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -32,8 +33,7 @@ export class AdminDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const host = window.location.hostname;
-    this.webhookUrl = `http://${host}:8010/api/v1/webhooks/inbound`;
+    this.webhookUrl = `${environment.baseUrl}/inbound`;
     this.loadDashboardData();
   }
 
