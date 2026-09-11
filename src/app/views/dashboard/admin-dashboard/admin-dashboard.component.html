@@ -1,0 +1,150 @@
+<div class="min-h-screen surface-ground p-4 md:p-6">
+
+  <!-- Header Card -->
+  <div class="surface-card border-1 surface-border border-round-xl p-4 shadow-1 mb-4">
+    <div class="flex align-items-center justify-content-between flex-wrap gap-3">
+      <div>
+        <h1 class="text-2xl font-bold text-900 m-0">Dashboard</h1>
+      </div>
+      <div class="flex gap-2 flex-wrap">
+        <p-button label="Add Route" icon="pi pi-plus" size="small" severity="primary"
+                  routerLink="/routes">
+        </p-button>
+        <p-button label="Logs" icon="pi pi-inbox" size="small" [outlined]="true" severity="secondary"
+                  routerLink="/logs">
+        </p-button>
+        <p-button icon="pi pi-refresh" size="small" [outlined]="true" severity="secondary"
+                  (onClick)="loadDashboardData()">
+        </p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gateway Configuration Banner -->
+  <div class="surface-card border-1 surface-border border-round-xl p-4 shadow-1 mb-4">
+    <div class="flex flex-column lg:flex-row lg:align-items-center justify-content-between gap-3">
+      <div class="flex align-items-center gap-3">
+        <div class="w-3rem h-3rem border-round-lg surface-100 text-blue-500 flex align-items-center justify-content-center flex-shrink-0">
+          <i class="pi pi-link text-lg"></i>
+        </div>
+        <div>
+          <div class="text-xs text-500 font-medium">Webhook URL</div>
+          <div class="text-xs font-mono text-900 mt-1 text-overflow-ellipsis overflow-hidden">{{ webhookUrl }}</div>
+        </div>
+      </div>
+      <div class="flex align-items-center gap-2">
+        <p-button label="Copy" icon="pi pi-copy" size="small" [outlined]="true" severity="secondary"
+                  (onClick)="copyWebhookUrl()">
+        </p-button>
+        <p-tag severity="success" value="Signature Verified"></p-tag>
+      </div>
+    </div>
+  </div>
+
+  <!-- Metric Statistics Grid -->
+  <div class="grid mb-4">
+    <!-- Card 1: Total Routes -->
+    <div class="col-12 sm:col-6 lg:col-3">
+      <div class="surface-card border-1 surface-border border-round-xl p-4 shadow-1 h-full flex flex-column justify-content-between">
+        <div>
+          <span class="text-xs text-500 font-semibold uppercase">Total Routes</span>
+          <div class="text-2xl font-bold text-900 mt-2">{{ stats.total_routes }}</div>
+        </div>
+        <div class="text-xs text-500 mt-3 pt-2 border-top-1 surface-border flex align-items-center justify-content-between">
+          <span>{{ stats.active_routes }} active</span>
+          <a routerLink="/routes" class="text-primary font-semibold no-underline hover:underline">Manage &rarr;</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Active Routes -->
+    <div class="col-12 sm:col-6 lg:col-3">
+      <div class="surface-card border-1 surface-border border-round-xl p-4 shadow-1 h-full flex flex-column justify-content-between">
+        <div>
+          <span class="text-xs text-500 font-semibold uppercase">Active Routes</span>
+          <div class="text-2xl font-bold text-green-600 mt-2">{{ stats.active_routes }}</div>
+        </div>
+        <div class="text-xs text-500 mt-3 pt-2 border-top-1 surface-border flex align-items-center justify-content-between">
+          <span>Status</span>
+          <span class="text-green-600 font-medium">Listening</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Total Inbound Processed -->
+    <div class="col-12 sm:col-6 lg:col-3">
+      <div class="surface-card border-1 surface-border border-round-xl p-4 shadow-1 h-full flex flex-column justify-content-between">
+        <div>
+          <span class="text-xs text-500 font-semibold uppercase">Delivered</span>
+          <div class="text-2xl font-bold text-900 mt-2">{{ stats.successful_forwards }}</div>
+        </div>
+        <div class="text-xs text-500 mt-3 pt-2 border-top-1 surface-border flex align-items-center justify-content-between">
+          <span>{{ stats.total_inbound_emails }} total</span>
+          <a routerLink="/logs" class="text-primary font-semibold no-underline hover:underline">Logs &rarr;</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4: Success Rate -->
+    <div class="col-12 sm:col-6 lg:col-3">
+      <div class="surface-card border-1 surface-border border-round-xl p-4 shadow-1 h-full flex flex-column justify-content-between">
+        <div>
+          <span class="text-xs text-500 font-semibold uppercase">Delivery Rate</span>
+          <div class="text-2xl font-bold text-900 mt-2">{{ successRate }}%</div>
+        </div>
+        <div class="text-xs text-500 mt-3 pt-2 border-top-1 surface-border flex align-items-center justify-content-between">
+          <span [class.text-red-500]="stats.failed_forwards > 0">{{ stats.failed_forwards }} failed</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Inbound Events Table -->
+  <div class="surface-card border-1 surface-border border-round-xl p-4 shadow-1">
+    <div class="flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+      <h2 class="text-lg font-bold text-900 m-0">Recent Activity</h2>
+      <p-button label="View All" icon="pi pi-arrow-right" iconPos="right" size="small" [text]="true"
+                routerLink="/logs">
+      </p-button>
+    </div>
+
+    <p-table [value]="recentLogs" [loading]="loading" responsiveLayout="scroll" styleClass="p-datatable-sm">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Time</th>
+          <th>From</th>
+          <th>To</th>
+          <th>Subject</th>
+          <th>Destination</th>
+          <th>Status</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-log>
+        <tr>
+          <td class="text-xs text-500 white-space-nowrap">{{ log.created_at | date:'short' }}</td>
+          <td class="text-sm font-medium">{{ log.from_address || '-' }}</td>
+          <td class="text-sm">{{ log.to_addresses || '-' }}</td>
+          <td class="text-sm text-overflow-ellipsis overflow-hidden max-w-15rem">{{ log.subject || '(No Subject)' }}</td>
+          <td class="text-xs font-mono text-overflow-ellipsis overflow-hidden max-w-15rem">
+            {{ log.destination_url || '-' }}
+          </td>
+          <td>
+            <p-tag *ngIf="log.status === 'SUCCESS'" severity="success" value="Delivered"></p-tag>
+            <p-tag *ngIf="log.status === 'FAILED'" severity="danger" value="Failed"></p-tag>
+            <p-tag *ngIf="log.status === 'NO_ROUTE'" severity="warn" value="No Route"></p-tag>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="text-center p-4 text-500">
+            No webhook activity yet.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+</div>

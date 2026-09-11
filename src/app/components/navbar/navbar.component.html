@@ -1,0 +1,164 @@
+<ng-template #appMenu let-collapsed="collapsed" let-isMobile="isMobile">
+  <div class="flex flex-column h-full justify-content-between py-2 px-1">
+
+    <!-- Top Section: Brand Logo & Navigation Links -->
+    <div>
+      <div class="flex align-items-center px-2 py-3 mb-3 border-bottom-1 surface-border"
+        [ngClass]="isMobile ? 'justify-content-between' : 'justify-content-start'">
+        <!-- Expanded Logo -->
+        <div *ngIf="!collapsed" class="flex align-items-center gap-2 overflow-hidden px-2">
+          <img src="assets/images/avo_icon.png" alt="Logo" class="w-2rem h-2rem flex-shrink-0"
+            style="object-fit: contain;" />
+          <div class="flex flex-column">
+            <span class="font-bold text-lg text-900 line-height-1">Email Gateway</span>
+            <span class="text-xs text-500 line-height-2">Inbound Dispatcher</span>
+          </div>
+        </div>
+
+        <!-- Contracted Icon -->
+        <div *ngIf="collapsed" class="flex align-items-center justify-content-center">
+          <img src="assets/images/avo_icon.png" alt="Logo" class="w-2rem h-2rem" style="object-fit: contain;" />
+        </div>
+
+        <!-- Close button on mobile drawer -->
+        <p-button *ngIf="isMobile" icon="pi pi-times" [rounded]="true" [text]="true" severity="secondary" size="small"
+          (onClick)="showMobileMenu = false">
+        </p-button>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="flex flex-column gap-1">
+        <a *ngFor="let item of items" pRipple
+          class="flex align-items-center border-round-md transition-colors transition-duration-150 cursor-pointer select-none no-underline relative"
+          [ngClass]="[
+             isActiveMenu(item.routerLink) ? 'bg-primary font-semibold text-white' : 'text-700 hover:surface-100 hover:text-900 font-medium',
+             collapsed ? 'justify-content-center px-2 py-3' : 'justify-content-between px-3 py-3'
+           ]" [routerLink]="item.routerLink" [pTooltip]="collapsed ? item.label : ''" tooltipPosition="right"
+          (click)="showMobileMenu = false">
+
+          <div class="flex align-items-center">
+            <i [class]="item.icon" class="text-lg"></i>
+            <span *ngIf="!collapsed" class="ml-3 text-sm white-space-nowrap">{{ item.label }}</span>
+          </div>
+
+          <!-- Badge -->
+          <span *ngIf="item.badge && item.badge !== '0'"
+            [class]="collapsed ? 'absolute top-1 right-1 border-circle bg-red-500' : 'w-1rem h-1rem border-circle bg-red-500 flex-shrink-0'"
+            [style]="collapsed ? 'width: 8px; height: 8px; display: inline-block;' : ''"
+            [pTooltip]="item.label + ' (' + item.badge + ')'">
+          </span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Bottom Section: Sidebar Expand / Collapse Toggle Button (Desktop only) -->
+    <div *ngIf="!isMobile" class="pt-2 border-top-1 surface-border text-center">
+      <button pButton type="button" [label]="collapsed ? '' : 'Collapse'"
+        [icon]="collapsed ? 'pi pi-angle-right' : 'pi pi-angle-left'"
+        [class]="collapsed ? 'p-button-text p-button-rounded p-button-sm text-500 hover:text-900 mx-auto' : 'p-button-text p-button-secondary p-button-sm w-full text-500 hover:text-900 justify-content-center text-xs'"
+        [pTooltip]="collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'" tooltipPosition="right"
+        (click)="toggleSidebar()">
+      </button>
+    </div>
+
+  </div>
+</ng-template>
+
+<div class="flex h-screen overflow-hidden">
+
+  <!-- Collapsible Sidebar Desktop -->
+  <div
+    [class]="(isSidebarCollapsed ? 'w-5rem' : 'w-16rem') + ' surface-card border-right-1 surface-border hidden lg:flex flex-column h-full px-2 overflow-x-hidden overflow-y-auto transition-all transition-duration-200 flex-shrink-0'">
+    <ng-container
+      *ngTemplateOutlet="appMenu; context: { collapsed: isSidebarCollapsed, isMobile: false }"></ng-container>
+  </div>
+
+  <div class="flex-1 flex flex-column min-w-0 h-full">
+
+    <div
+      class="w-full h-4rem surface-card border-bottom-1 surface-border shadow-none z-5 flex justify-content-between align-items-center px-4 gap-3">
+      <div class="flex gap-3 align-items-center">
+        <p-button icon="pi pi-bars" class="lg:hidden" [rounded]="true" [text]="true" (click)="showMobileMenu = true" />
+      </div>
+
+      <div class="flex align-items-center gap-3">
+        <!-- Theme Toggle Button -->
+        <button pButton [icon]="themeIcon" [rounded]="true" [text]="true" severity="secondary"
+          (click)="toggleDarkMode()" pTooltip="Toggle Dark/Light Mode" tooltipPosition="bottom">
+        </button>
+
+        <div>
+          <p-menu #menu [model]="accountMenuItems" [popup]="true" />
+          <p-avatar [label]="avatarText"
+            styleClass="text-sm bg-primary cursor-pointer hover:bg-primary-700 transition-colors" shape="circle"
+            (click)="menu.toggle($event)" />
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto surface-ground relative">
+      <div *ngIf="isManipulatingData"
+        class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center z-5"
+        style="background: rgba(var(--surface-ground-rgb), 0.8); backdrop-filter: blur(4px);">
+        <div
+          class="surface-card p-5 border-round-xl shadow-4 flex flex-column align-items-center text-center max-w-sm animation-duration-300 fadein">
+          <p-progressSpinner styleClass="w-4rem h-4rem mb-4" strokeWidth="4" animationDuration="1s"></p-progressSpinner>
+          <h3 class="text-xl font-semibold text-900 mb-2 mt-0">Working on it...</h3>
+
+          <div class="h-4rem flex align-items-center justify-content-center">
+            <p class="text-600 m-0 line-height-3 fadein animation-duration-500">{{ currentLoadingMessage }}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="h-full">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-drawer [(visible)]="showMobileMenu" [showCloseIcon]="false" styleClass="w-18rem max-w-full">
+  <div class="px-2 h-full overflow-y-auto">
+    <ng-container *ngTemplateOutlet="appMenu; context: { collapsed: false, isMobile: true }"></ng-container>
+  </div>
+</p-drawer>
+
+<!-- Enforced Password Change Dialog -->
+<p-dialog [(visible)]="showEnforcedPasswordChangeDialog" [modal]="true" [closable]="false" [closeOnEscape]="false"
+  [draggable]="false" [resizable]="false" [style]="{ width: '92vw', maxWidth: '440px' }" header="Security Alert">
+
+  <div class="pt-1">
+    <div class="flex align-items-center gap-3 p-3 surface-100 border-round-lg mb-3 border-1 surface-border">
+      <i class="pi pi-shield text-primary text-2xl flex-shrink-0"></i>
+      <div>
+        <span class="font-semibold text-900 text-sm block mb-1">Password Change Required</span>
+        <span class="text-xs text-600 line-height-2">
+          Your account credentials were recovered or delivered via email. For your security, you must set a new password before continuing.
+        </span>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="currentPass" class="block text-900 font-medium text-sm mb-2">Current / Temporary Password</label>
+      <input [(ngModel)]="currentPasswordInput" id="currentPass" type="password" placeholder="••••••••" pInputText class="w-full" />
+    </div>
+
+    <div class="mb-3">
+      <label for="newPass" class="block text-900 font-medium text-sm mb-2">New Password (min. 6 characters)</label>
+      <input [(ngModel)]="newPasswordInput" id="newPass" type="password" placeholder="••••••••" pInputText class="w-full" />
+    </div>
+
+    <div class="mb-2">
+      <label for="confirmPass" class="block text-900 font-medium text-sm mb-2">Confirm New Password</label>
+      <input [(ngModel)]="confirmPasswordInput" id="confirmPass" type="password" placeholder="••••••••" pInputText class="w-full" />
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-end gap-2 w-full">
+      <p-button label="Sign Out" [text]="true" severity="secondary" size="small" (onClick)="onLogout()" [disabled]="changingPasswordLoading"></p-button>
+      <p-button label="Set New Password" icon="pi pi-lock" severity="primary" size="small" (onClick)="submitEnforcedPasswordChange()" [loading]="changingPasswordLoading" [disabled]="!currentPasswordInput || !newPasswordInput || !confirmPasswordInput"></p-button>
+    </div>
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,183 @@
+<div class="max-w-screen-2xl mx-auto p-3 md:p-4 flex flex-column gap-4">
+    <!-- Ground-Level Header Section -->
+    <div class="flex flex-column sm:flex-row justify-content-between align-items-start sm:align-items-center gap-3 pb-3 border-bottom-1 surface-border">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold text-color m-0">Client Manager</h1>
+            <p class="text-color-secondary text-sm md:text-base mt-2 mb-0">Manage client verifications and reviews</p>
+        </div>
+
+        <div class="flex gap-2 justify-content-end align-items-center">
+            <p-button label="Create client" icon="pi pi-user-plus" severity="primary" />
+        </div>
+    </div>
+
+    <div class="flex justify-content-end">
+        <p-floatlabel variant="on" class="w-full sm:w-auto">
+            <input pInputText id="on_label" [(ngModel)]="tenderStatusSelectedValue" autocomplete="off"
+                placeholder="Search clients..." [fluid]="true"
+                (ngModelChange)="searchTenders($event)" class="w-full sm:w-20rem" />
+        </p-floatlabel>
+    </div>
+
+    <div class="grid">
+        <p-card class="col-12 md:col-6 lg:col-3" *ngFor="let item of cards">
+            <div class="flex justify-content-between align-items-center">
+                <div>
+                    <div class="font-bold text-500 mb-2">{{item.title}}</div>
+                    <h2 class="text-bold text-4xl my-2">{{item.value}}</h2>
+                    <p class="m-0 p-0 text-500 text-sm">{{item.description}}</p>
+                </div>
+                <i [class]="item.icon" class="text-4xl"
+                    [ngClass]="{'text-primary': true, 'text-red-500': item.title.includes('Flagged'), 'text-green-500': item.title.includes('Taxpayers')}"></i>
+            </div>
+        </p-card>
+    </div>
+
+    <div [ngClass]="{'card p-2 sm:p-4 surface-card shadow-3 border-0 border-round-2xl': layoutView === 'table', 'mt-4': true}">
+        <div class="flex justify-content-end mb-3 gap-3">
+            <p-selectbutton [options]="layoutOptions" [(ngModel)]="layoutView" optionValue="value">
+                <ng-template let-item #item>
+                    <i [class]="item.icon" class="mr-1"></i>
+                    <span class="hidden sm:inline">{{ item.label }}</span>
+                </ng-template>
+            </p-selectbutton>
+        </div>
+
+        <p-table #dt1 [value]="filteredUsers" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"
+            [loading]="loading" [paginator]="true" (onFilter)="updateCardNumbers(dt1)" [scrollable]="true"
+            [globalFilterFields]="['first_name', 'last_name']" [rowHover]="true">
+            <ng-template #caption>
+                <div class="flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div class="flex align-items-center gap-2">
+                        <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (click)="clear(dt1)" />
+                    </div>
+                    <p-iconfield iconPosition="left" class="ml-auto w-full sm:w-auto">
+                        <p-inputicon>
+                            <i class="pi pi-search"></i>
+                        </p-inputicon>
+                        <input pInputText type="text" (input)="dt1.filterGlobal($any($event.target).value, 'contains')"
+                            placeholder="Search keyword" class="w-full sm:w-16rem" />
+                    </p-iconfield>
+                </div>
+            </ng-template>
+            <ng-template #header>
+                <tr *ngIf="layoutView === 'table'">
+                    <th></th>
+                    <th style="min-width:10rem" pSortableColumn="first_name">
+                        <div class="flex align-items-center justify-content-between">
+                            First name
+                            <p-sortIcon field="first_name"></p-sortIcon>
+                        </div>
+                    </th>
+                    <th style="min-width:10rem" pSortableColumn="last_name">
+                        <div class="flex align-items-center justify-content-between">
+                            Last Name
+                            <p-sortIcon field="last_name"></p-sortIcon>
+                            <p-columnFilter type="text" field="last_name" display="menu" />
+                        </div>
+                    </th>
+                    <th pSortableColumn="overall_accuracy">
+                        <div class="flex align-items-center justify-content-between">
+                            Accuracy
+                            <p-sortIcon field="overall_accuracy"></p-sortIcon>
+                            <p-columnFilter type="number" field="overall_accuracy" display="menu"></p-columnFilter>
+                        </div>
+                    </th>
+                    <th pSortableColumn="verification_status">
+                        <div class="flex align-items-center justify-content-between">
+                            Status
+                            <p-sortIcon field="verification_status"></p-sortIcon>
+                        </div>
+                    </th>
+                    <th style="min-width:8rem" pSortableColumn="date_created">
+                        <div class="flex align-items-center justify-content-between">
+                            Date Joined
+                            <p-sortIcon field="date_created"></p-sortIcon>
+                        </div>
+                    </th>
+                    <th>Actions</th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-case>
+                <tr *ngIf="layoutView === 'table'" [pSelectableRow]="case">
+                    <td><p-avatar [label]="case.first_name[0] + case.last_name[0]" class="text-base text-700"
+                            shape="circle" /></td>
+                    <td>{{ case.first_name }}</td>
+                    <td>{{ case.last_name }}</td>
+                    <td>
+                        <span *ngIf="case.extracted_users?.length === 0">--</span>
+                        <div *ngIf="case.extracted_users?.length>0">
+                            <ng-container
+                                *ngIf="case.extracted_users[case.extracted_users.length-1].overall_accuracy !== undefined">
+                                <p-progressbar
+                                    [value]="case.extracted_users[case.extracted_users.length-1].overall_accuracy * 100| number:'1.0-0'"
+                                    [style]="{ height: '14px' }" />
+                            </ng-container>
+                        </div>
+                    </td>
+                    <td>
+                        <p-tag [value]="getStatusSeverityAndWord(case.verification_status).status"
+                            [severity]="getStatusSeverityAndWord(case.verification_status).severity"></p-tag>
+                    </td>
+                    <td>
+                        <div class="flex align-items-center gap-2">
+                            <span>{{ case.date_created | date | nullDisplay}}</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="flex gap-2">
+                            <p-button icon="pi pi-eye" severity="info" (click)="viewUserDetails(case)"
+                                pTooltip="view client" variant="outlined"></p-button>
+                            <p-button icon="pi pi-trash" severity="danger" (click)="confirmDelete($event, case)"
+                                pTooltip="delete client" variant="outlined"></p-button>
+                        </div>
+                    </td>
+                </tr>
+                <tr *ngIf="layoutView === 'card'" class="border-0 bg-transparent">
+                    <td colspan="7" class="p-2 border-0 bg-transparent">
+                        <div class="surface-card border-1 surface-border border-round-xl p-3 shadow-1 hover:shadow-3 transition-duration-200">
+                            <div class="flex justify-content-between align-items-center mb-3 pb-2 border-bottom-1 surface-border">
+                                <div class="flex align-items-center gap-3">
+                                    <p-avatar [label]="case.first_name[0] + case.last_name[0]" class="text-lg text-700 surface-200" shape="circle" size="large" />
+                                    <div>
+                                        <div class="font-bold text-lg text-900">{{ case.first_name }} {{ case.last_name }}</div>
+                                        <span class="text-xs text-500">Registered Client</span>
+                                    </div>
+                                </div>
+                                <p-tag [value]="getStatusSeverityAndWord(case.verification_status).status" [severity]="getStatusSeverityAndWord(case.verification_status).severity"></p-tag>
+                            </div>
+                            <div class="my-2" *ngIf="case.extracted_users?.length>0">
+                                <span class="text-500 text-xs mb-1 block">Accuracy</span>
+                                <ng-container *ngIf="case.extracted_users[case.extracted_users.length-1].overall_accuracy !== undefined">
+                                    <p-progressbar [value]="case.extracted_users[case.extracted_users.length-1].overall_accuracy * 100| number:'1.0-0'" [style]="{ height: '14px' }" />
+                                </ng-container>
+                            </div>
+                            <div class="flex justify-content-between align-items-center mt-3 pt-2 border-top-1 surface-border text-xs text-500">
+                                <span>Joined: {{ case.date_created | date | nullDisplay }}</span>
+                                <div class="flex gap-2">
+                                    <p-button icon="pi pi-eye" label="View" size="small" severity="info" (click)="viewUserDetails(case)" variant="outlined"></p-button>
+                                    <p-button icon="pi pi-trash" size="small" severity="danger" (click)="confirmDelete($event, case)" variant="outlined"></p-button>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+                <tr>
+                    <td colspan="8" class="text-center py-4">No records found.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+
+
+
+<!-- <p-dialog header="Edit Buffer Level" [modal]="true" [(visible)]="showEditProductBufferLevelDialog"
+    *ngIf="showEditProductBufferLevelDialog" [style]="{ width: '50rem' }"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="true">
+    <app-add-product-buffer-level [selectedProductBufferLevel]="selectedProductBufferLevel"
+        (onEditSuccess)="showEditProductBufferLevelDialog = false"></app-add-product-buffer-level>
+</p-dialog> -->

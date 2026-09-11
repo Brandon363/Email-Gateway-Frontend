@@ -1,0 +1,41 @@
+<div class="pt-3 lg:mx-5 mx-3 mb-3 lg:mb-0  gap-3
+flex lg:flex-row flex-column lg:justify-content-between lg:align-items-center bg-transparent">
+    <p-breadcrumb [model]="breadcomb_menu_items" styleClass="bg-transparent" />
+
+</div>
+
+<div class="lg:p-5 p-2">
+    <div class="grid">
+        <div class="lg:col-8 col-12">
+            <div class=" card surface-card py-5 px-5 shadow-3 border-round-xl flex flex-column gap-5">
+
+                <div class="flex justify-content-center align-items-center">
+                    <webcam [trigger]="trigger" (imageCapture)="handleImage($event)" [width]="width"
+                        (initError)="handleInitError($event)"></webcam>
+                </div>
+                <p-button (click)="triggerSnapshot()" [loading]="isLoading" icon="pi pi-camera"
+                    class="flex justify-content-end" severity="primary" label="Capture" [disabled]="images.length>=1"></p-button>
+                <div class="p-3" *ngIf="responseData">
+                    {{ responseData}}
+                </div>
+            </div>
+        </div>
+        <div class="lg:col-4 col-12">
+            <div class="card surface-card py-5 px-5 shadow-3 border-round-xl flex flex-column gap-2">
+                <div class=" text-2xl text-900 p-0">
+                    Preview Images
+                </div>
+                <div class="max-h-28rem overflow-scroll">
+                    <div *ngFor="let image of images; let i = index" class="w-full ">
+                        <img [src]="image.imageAsDataUrl" width="100" height="100" class="w-full h-full">
+                        <p-button (click)="removeImage(i)" [loading]="isLoading" class="flex justify-content-end my-2"
+                            severity="danger" label="Remove"></p-button>
+                    </div>
+                </div>
+                <p-divider class="my-1"></p-divider>
+                <p-button (click)="uploadImage()" [loading]="isLoading" class="flex justify-content-end"
+                    *ngIf="images.length > 0" severity="primary" label="Verify" icon="pi pi-save"></p-button>
+            </div>
+        </div>
+    </div>
+</div>

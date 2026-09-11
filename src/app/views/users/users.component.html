@@ -1,0 +1,167 @@
+<div class="min-h-screen surface-ground p-4 md:p-6">
+
+  <!-- Header Card -->
+  <div class="surface-card border-1 surface-border border-round-xl p-4 shadow-1 mb-4">
+    <div class="flex align-items-center justify-content-between flex-wrap gap-3">
+      <div>
+        <h1 class="text-2xl font-bold text-900 m-0">Users</h1>
+      </div>
+
+      <div class="flex align-items-center gap-2 flex-wrap">
+        <p-iconfield iconPosition="left">
+          <p-inputicon styleClass="pi pi-search" />
+          <input type="text" pInputText placeholder="Search users..." [(ngModel)]="searchQuery" (input)="filterUsers()"
+            class="p-inputtext-sm" />
+        </p-iconfield>
+
+        <p-button label="Add User" icon="pi pi-plus" size="small" severity="primary" (onClick)="openCreateDialog()">
+        </p-button>
+
+        <p-button icon="pi pi-refresh" size="small" [outlined]="true" severity="secondary" (onClick)="loadUsers()">
+        </p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users Table Card -->
+  <div class="surface-card border-1 surface-border border-round-xl p-4 shadow-1">
+    <p-table [value]="filteredUsers" [loading]="loading" [paginator]="true" [rows]="10" responsiveLayout="scroll"
+      styleClass="p-datatable-sm" [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords}">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 4rem;">ID</th>
+          <th>User</th>
+          <th>Email</th>
+          <th style="width: 8rem; text-align: center;">Role</th>
+          <th style="width: 8rem; text-align: center;">Status</th>
+          <th style="width: 10rem;">Created</th>
+          <th style="width: 6rem; text-align: right;">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td class="font-mono text-500 text-xs">#{{ user.id }}</td>
+          <td>
+            <div class="flex align-items-center gap-2">
+              <p-avatar [label]="getInitials(user)" shape="circle"
+                styleClass="bg-primary-50 text-primary font-bold text-xs"
+                [style]="{ width: '2rem', height: '2rem' }">
+              </p-avatar>
+              <span class="font-semibold text-900 text-sm">{{ user.first_name }} {{ user.last_name }}</span>
+            </div>
+          </td>
+          <td class="text-sm text-700">
+            <div class="flex align-items-center gap-2">
+              <span>{{ user.email }}</span>
+              <button pButton icon="pi pi-copy" [rounded]="true" [text]="true" size="small" severity="secondary"
+                pTooltip="Copy Email" tooltipPosition="top" (click)="copyToClipboard(user.email, 'Email')">
+              </button>
+            </div>
+          </td>
+          <td style="text-align: center;">
+            <p-tag [value]="user.user_role || 'ADMIN'" [severity]="user.user_role === 'ADMIN' ? 'info' : 'secondary'">
+            </p-tag>
+          </td>
+          <td style="text-align: center;">
+            <p-tag [value]="user.entity_status || 'ACTIVE'" severity="success">
+            </p-tag>
+          </td>
+          <td class="text-xs text-500 white-space-nowrap">
+            {{ user.date_created | date:'mediumDate' }}
+          </td>
+          <td style="text-align: right;">
+            <button *ngIf="user.email?.toLowerCase() !== 'brandon.mutombwa@dataalafrica.com' && user.id !== currentUserId"
+              pButton icon="pi pi-trash" [rounded]="true" [text]="true" size="small" severity="danger"
+              pTooltip="Delete User" tooltipPosition="top" (click)="confirmDelete(user)">
+            </button>
+            <span *ngIf="user.email?.toLowerCase() === 'brandon.mutombwa@dataalafrica.com' || user.id === currentUserId"
+              class="text-xs text-400 font-italic">
+              Primary
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center py-5 text-500">
+            No users found.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- Add User Dialog -->
+<p-dialog [(visible)]="showCreateDialog" [modal]="true" [style]="{ width: '92vw', maxWidth: '480px' }"
+  [draggable]="false" [resizable]="false" header="Add User">
+  <div class="pt-2">
+    <form [formGroup]="createUserForm">
+      <div class="grid">
+        <div class="col-12 sm:col-6 mb-3">
+          <label for="firstName" class="block text-900 font-medium text-sm mb-2">First Name</label>
+          <input formControlName="first_name" id="firstName" type="text" placeholder="First name" pInputText class="w-full" />
+        </div>
+        <div class="col-12 sm:col-6 mb-3">
+          <label for="lastName" class="block text-900 font-medium text-sm mb-2">Last Name</label>
+          <input formControlName="last_name" id="lastName" type="text" placeholder="Last name" pInputText class="w-full" />
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="newEmail" class="block text-900 font-medium text-sm mb-2">Email Address</label>
+        <input formControlName="email" id="newEmail" type="email" placeholder="name@company.com" pInputText class="w-full" />
+      </div>
+
+      <div class="mb-3">
+        <label for="newPassword" class="block text-900 font-medium text-sm mb-2">Password</label>
+        <input formControlName="password" id="newPassword" type="password" placeholder="••••••••" pInputText class="w-full" />
+      </div>
+
+      <div class="mb-3">
+        <label for="userRole" class="block text-900 font-medium text-sm mb-2">Role</label>
+        <p-dropdown formControlName="user_role" [options]="roleOptions" optionLabel="label" optionValue="value"
+          styleClass="w-full" appendTo="body">
+        </p-dropdown>
+      </div>
+    </form>
+  </div>
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-end gap-2">
+      <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="showCreateDialog = false"
+        [disabled]="submitting">
+      </p-button>
+      <p-button label="Create User" icon="pi pi-check" severity="primary" (onClick)="onCreateUser()"
+        [loading]="submitting" [disabled]="createUserForm.invalid">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Delete User Confirmation Dialog -->
+<p-dialog [(visible)]="showDeleteDialog" [modal]="true" [style]="{ width: '92vw', maxWidth: '420px' }"
+  [draggable]="false" [resizable]="false" header="Delete User">
+  <div class="flex align-items-center gap-3 pt-2">
+    <i class="pi pi-exclamation-triangle text-red-500 text-3xl flex-shrink-0"></i>
+    <div>
+      <p class="text-900 font-medium m-0 mb-1">Are you sure you want to delete this user?</p>
+      <p class="text-500 text-sm m-0">
+        User: <span class="font-semibold text-700">{{ userToDelete?.email }}</span>
+      </p>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-end gap-2">
+      <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="showDeleteDialog = false"
+        [disabled]="deleting">
+      </p-button>
+      <p-button label="Delete" icon="pi pi-trash" severity="danger" (onClick)="executeDelete()"
+        [loading]="deleting">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>

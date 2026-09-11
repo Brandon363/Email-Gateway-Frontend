@@ -1,0 +1,51 @@
+<div class="surface-ground min-h-screen flex align-items-center justify-content-center p-4">
+    <div class="surface-card p-4 sm:p-5 shadow-2 border-round-xl w-full max-w-28rem border-1 surface-border">
+        <div class="text-center mb-4">
+            <img src="assets/images/avo_icon.png" alt="Logo" class="w-4rem h-4rem mb-3" style="object-fit: contain;" />
+            <div class="text-900 text-2xl font-bold mb-1">Email Gateway</div>
+            <span class="text-500 text-sm">Sign in to manage your inbound email routes</span>
+        </div>
+
+
+        <form [formGroup]="loginForm">
+            <div class="mb-3">
+                <label for="email" class="block text-900 font-medium text-sm mb-2">Email Address</label>
+                <input formControlName="email" id="email" type="email" placeholder="name@company.com" pInputText
+                    class="w-full" />
+            </div>
+
+            <div class="mb-4">
+                <div class="flex justify-content-between align-items-center mb-2">
+                    <label for="password" class="block text-900 font-medium text-sm">Password</label>
+                    <a (click)="openForgotPasswordDialog()" class="text-xs text-primary font-medium cursor-pointer hover:underline">Forgot password?</a>
+                </div>
+                <input formControlName="password" id="password" type="password" placeholder="••••••••" pInputText
+                    class="w-full" />
+            </div>
+
+            <button pButton pRipple label="Sign In" icon="pi pi-sign-in" [disabled]="loginForm.invalid"
+                (click)="onLogin()" [loading]="loading" class="w-full" severity="primary">
+            </button>
+        </form>
+
+        <div class="text-center mt-4 pt-3 border-top-1 surface-border">
+            <span class="text-xs text-500">Inbound Email Gateway &bull; Dataal Africa</span>
+        </div>
+    </div>
+</div>
+
+<!-- Forgot Password Dialog -->
+<p-dialog [(visible)]="showForgotPasswordDialog" [modal]="true" [style]="{ width: '92vw', maxWidth: '440px' }" [draggable]="false" [resizable]="false" header="Reset / Recover Password">
+    <div class="pt-2">
+        <div class="mb-3">
+            <label for="forgotEmail" class="block text-900 font-medium text-sm mb-2">Email Address</label>
+            <input [(ngModel)]="forgotPasswordEmail" id="forgotEmail" type="email" placeholder="name@company.com" pInputText class="w-full" />
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="showForgotPasswordDialog = false" [disabled]="forgotPasswordLoading"></p-button>
+            <p-button label="Send Password" icon="pi pi-send" severity="primary" (onClick)="onForgotPassword()" [loading]="forgotPasswordLoading" [disabled]="!forgotPasswordEmail"></p-button>
+        </div>
+    </ng-template>
+</p-dialog>

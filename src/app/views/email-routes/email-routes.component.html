@@ -1,0 +1,158 @@
+<div class="min-h-screen surface-ground p-4 md:p-6">
+
+  <!-- Header Card -->
+  <div class="surface-card border-1 surface-border border-round-xl p-4 shadow-1 mb-4">
+    <div class="flex align-items-center justify-content-between flex-wrap gap-3">
+      <div>
+        <h1 class="text-2xl font-bold text-900 m-0">Email Routes</h1>
+      </div>
+
+      <div class="flex align-items-center gap-2 flex-wrap">
+        <!-- Search Input -->
+        <p-iconfield iconPosition="left">
+          <p-inputicon styleClass="pi pi-search" />
+          <input type="text" pInputText placeholder="Search..." [(ngModel)]="searchQuery" class="p-inputtext-sm" />
+        </p-iconfield>
+
+        <p-button label="Add Route" icon="pi pi-plus" size="small" severity="primary" (onClick)="openCreateDialog()">
+        </p-button>
+
+        <p-button label="Export CSV" icon="pi pi-download" size="small" [outlined]="true" severity="secondary" (onClick)="exportCSV()">
+        </p-button>
+
+        <p-button icon="pi pi-refresh" size="small" [outlined]="true" severity="secondary" (onClick)="loadRoutes()">
+        </p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Routes Table Card -->
+  <div class="surface-card border-1 surface-border border-round-xl p-4 shadow-1">
+    <p-table [value]="filteredRoutes" [loading]="loading" [paginator]="true" [rows]="10"
+      responsiveLayout="scroll" styleClass="p-datatable-sm" [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords}">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 5rem;">ID</th>
+          <th>Email Address</th>
+          <th>Webhook URL</th>
+          <th style="width: 7rem; text-align: center;">Status</th>
+          <th style="width: 9rem;">Created</th>
+          <th style="width: 10rem; text-align: right;">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-route>
+        <tr>
+          <td class="font-mono text-500 text-xs">#{{ route.id }}</td>
+          <td>
+            <div class="flex align-items-center gap-2">
+              <span class="font-semibold text-900 text-sm">{{ route.email_address }}</span>
+              <button pButton icon="pi pi-copy" [rounded]="true" [text]="true" size="small" severity="secondary"
+                pTooltip="Copy" tooltipPosition="top" (click)="copyToClipboard(route.email_address, 'Email')">
+              </button>
+            </div>
+          </td>
+          <td>
+            <div class="flex align-items-center gap-2">
+              <span class="font-mono text-xs text-600 text-overflow-ellipsis overflow-hidden max-w-20rem">
+                {{ route.destination_webhook_url }}
+              </span>
+              <button pButton icon="pi pi-copy" [rounded]="true" [text]="true" size="small" severity="secondary"
+                pTooltip="Copy" tooltipPosition="top" (click)="copyToClipboard(route.destination_webhook_url, 'Webhook URL')">
+              </button>
+            </div>
+          </td>
+          <td style="text-align: center;">
+            <p-toggleswitch [(ngModel)]="route.is_active" (onChange)="toggleActive(route, $event)">
+            </p-toggleswitch>
+          </td>
+          <td class="text-xs text-500 white-space-nowrap">
+            {{ route.created_at | date:'mediumDate' }}
+          </td>
+          <td style="text-align: right;">
+            <div class="flex align-items-center justify-content-end gap-1">
+              <button pButton icon="pi pi-send" [rounded]="true" [text]="true" size="small" severity="info"
+                [loading]="testingRouteId === route.id" pTooltip="Send Test Ping" tooltipPosition="top"
+                (click)="testRoute(route)">
+              </button>
+
+              <button pButton icon="pi pi-pencil" [rounded]="true" [text]="true" size="small" severity="secondary"
+                pTooltip="Edit" tooltipPosition="top" (click)="openEditDialog(route)">
+              </button>
+
+              <button pButton icon="pi pi-trash" [rounded]="true" [text]="true" size="small" severity="danger"
+                pTooltip="Delete" tooltipPosition="top" (click)="confirmDelete(route)">
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="text-center p-5 text-500">
+            <i class="pi pi-directions text-3xl text-300 block mb-2"></i>
+            <span class="text-sm font-medium">No routes found.</span>
+            <div class="mt-2">
+              <p-button label="Add Route" icon="pi pi-plus" size="small" severity="primary"
+                (onClick)="openCreateDialog()">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- Add / Edit Route Dialog -->
+<p-dialog [(visible)]="displayDialog" [modal]="true" [style]="{ width: '440px' }" [draggable]="false" [resizable]="false">
+  <ng-template pTemplate="header">
+    <div class="flex align-items-center gap-2">
+      <span class="font-bold text-lg text-900">{{ isEditMode ? 'Edit Route' : 'New Route' }}</span>
+    </div>
+  </ng-template>
+
+  <form [formGroup]="routeForm" (ngSubmit)="saveRoute()" class="p-fluid pt-2">
+    <!-- Email Address -->
+    <div class="mb-3">
+      <label for="email_address" class="block text-900 font-medium text-sm mb-1">
+        Email Address <span class="text-red-500">*</span>
+      </label>
+      <input id="email_address" type="email" pInputText formControlName="email_address"
+        placeholder="support@mail.dataalafrica.com" class="w-full" />
+      <small *ngIf="routeForm.get('email_address')?.invalid && routeForm.get('email_address')?.touched" class="text-red-500 mt-1 block">
+        Enter a valid email address.
+      </small>
+    </div>
+
+    <!-- Webhook URL -->
+    <div class="mb-3">
+      <label for="destination_webhook_url" class="block text-900 font-medium text-sm mb-1">
+        Destination Webhook URL <span class="text-red-500">*</span>
+      </label>
+      <input id="destination_webhook_url" type="url" pInputText formControlName="destination_webhook_url"
+        placeholder="https://api.myapp.com/webhooks/email" class="w-full" />
+      <small *ngIf="routeForm.get('destination_webhook_url')?.invalid && routeForm.get('destination_webhook_url')?.touched" class="text-red-500 mt-1 block">
+        Webhook URL is required.
+      </small>
+    </div>
+
+    <!-- Active Switch -->
+    <div class="flex align-items-center gap-2 mb-4 mt-2">
+      <p-toggleswitch formControlName="is_active" inputId="is_active"></p-toggleswitch>
+      <label for="is_active" class="text-sm font-medium text-900 cursor-pointer">Active</label>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-content-end gap-2 pt-3 border-top-1 surface-border">
+      <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="displayDialog = false">
+      </p-button>
+      <p-button [label]="isEditMode ? 'Save' : 'Create'" severity="primary"
+        [disabled]="routeForm.invalid" (onClick)="saveRoute()">
+      </p-button>
+    </div>
+  </form>
+</p-dialog>

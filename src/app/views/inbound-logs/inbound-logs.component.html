@@ -1,0 +1,154 @@
+<div class="min-h-screen surface-ground p-4 md:p-6">
+
+  <!-- Header Card -->
+  <div class="surface-card border-1 surface-border border-round-xl p-4 shadow-1 mb-4">
+    <div class="flex align-items-center justify-content-between flex-wrap gap-3">
+      <div>
+        <h1 class="text-2xl font-bold text-900 m-0">Inbound Logs</h1>
+      </div>
+
+      <div class="flex align-items-center gap-2 flex-wrap">
+        <p-iconfield iconPosition="left">
+          <p-inputicon styleClass="pi pi-search" />
+          <input type="text" pInputText placeholder="Search..." [(ngModel)]="searchQuery" class="p-inputtext-sm" />
+        </p-iconfield>
+
+        <p-button label="Export CSV" icon="pi pi-download" size="small" [outlined]="true" severity="secondary" (onClick)="exportCSV()">
+        </p-button>
+
+        <p-button icon="pi pi-refresh" size="small" [outlined]="true" severity="secondary" (onClick)="loadLogs()">
+        </p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logs Table Card -->
+  <div class="surface-card border-1 surface-border border-round-xl p-4 shadow-1">
+    <p-table [value]="filteredLogs" [loading]="loading" [paginator]="true" [rows]="15"
+      responsiveLayout="scroll" styleClass="p-datatable-sm" [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords}">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 11rem;">Timestamp</th>
+          <th>From</th>
+          <th>To</th>
+          <th>Subject</th>
+          <th>Destination</th>
+          <th style="width: 7rem; text-align: center;">Status</th>
+          <th style="width: 4rem; text-align: center;"></th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-log>
+        <tr class="cursor-pointer hover:surface-50" (click)="openDetails(log)">
+          <td class="text-xs text-500 white-space-nowrap">
+            {{ log.created_at | date:'short' }}
+          </td>
+          <td class="text-sm font-medium">{{ log.from_address || '-' }}</td>
+          <td class="text-sm">{{ log.to_addresses || '-' }}</td>
+          <td class="text-sm text-overflow-ellipsis overflow-hidden max-w-15rem">
+            {{ log.subject || '(No Subject)' }}
+          </td>
+          <td class="text-xs font-mono text-overflow-ellipsis overflow-hidden max-w-15rem text-600">
+            {{ log.destination_url || '-' }}
+          </td>
+          <td style="text-align: center;">
+            <p-tag *ngIf="log.status === 'SUCCESS'" severity="success" value="Delivered"></p-tag>
+            <p-tag *ngIf="log.status === 'FAILED'" severity="danger" value="Failed"></p-tag>
+            <p-tag *ngIf="log.status === 'NO_ROUTE'" severity="warn" value="No Route"></p-tag>
+          </td>
+          <td style="text-align: center;">
+            <button pButton icon="pi pi-eye" [rounded]="true" [text]="true" size="small" severity="secondary"
+              (click)="openDetails(log); $event.stopPropagation()">
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center p-5 text-500">
+            No logs found.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- Log Details Dialog -->
+<p-dialog [(visible)]="displayDetailDialog" [modal]="true" [style]="{ width: '560px', maxWidth: '95vw' }" [draggable]="false" [resizable]="false">
+  <ng-template pTemplate="header">
+    <span class="font-bold text-lg text-900">Log Details</span>
+  </ng-template>
+
+  <div *ngIf="selectedLog" class="p-fluid">
+    <!-- Status & Time Header Pill -->
+    <div class="surface-100 p-3 border-round-lg flex align-items-center justify-content-between mb-3 flex-wrap gap-2 border-1 surface-border">
+      <div class="flex align-items-center gap-2">
+        <span class="text-xs text-500 font-semibold uppercase">Status:</span>
+        <p-tag *ngIf="selectedLog.status === 'SUCCESS'" severity="success" value="Delivered"></p-tag>
+        <p-tag *ngIf="selectedLog.status === 'FAILED'" severity="danger" value="Failed"></p-tag>
+        <p-tag *ngIf="selectedLog.status === 'NO_ROUTE'" severity="warn" value="No Route"></p-tag>
+      </div>
+      <div class="text-xs text-500 font-medium">
+        {{ selectedLog.created_at | date:'medium' }}
+      </div>
+    </div>
+
+    <div class="flex flex-column gap-3">
+      <!-- Message ID -->
+      <div>
+        <span class="text-xs text-500 font-semibold uppercase block mb-1">Message ID</span>
+        <div class="font-mono text-xs text-900 surface-ground p-2 border-round border-1 surface-border" style="word-break: break-all; line-height: 1.4;">
+          {{ selectedLog.message_id || '-' }}
+        </div>
+      </div>
+
+      <!-- From & To: clean full rows with word breaking -->
+      <div>
+        <span class="text-xs text-500 font-semibold uppercase block mb-1">From</span>
+        <div class="text-sm font-semibold text-900" style="word-break: break-all;">
+          {{ selectedLog.from_address || '-' }}
+        </div>
+      </div>
+
+      <div>
+        <span class="text-xs text-500 font-semibold uppercase block mb-1">To</span>
+        <div class="text-sm font-semibold text-900" style="word-break: break-all;">
+          {{ selectedLog.to_addresses || '-' }}
+        </div>
+      </div>
+
+      <!-- Subject -->
+      <div>
+        <span class="text-xs text-500 font-semibold uppercase block mb-1">Subject</span>
+        <div class="text-sm text-900 font-medium">
+          {{ selectedLog.subject || '(No Subject)' }}
+        </div>
+      </div>
+
+      <!-- Destination Webhook URL -->
+      <div>
+        <span class="text-xs text-500 font-semibold uppercase block mb-1">Destination URL</span>
+        <div class="font-mono text-xs text-primary" style="word-break: break-all;">
+          {{ selectedLog.destination_url || '-' }}
+        </div>
+      </div>
+
+      <!-- Message / Delivery Output -->
+      <div *ngIf="selectedLog.status_message">
+        <span class="text-xs text-500 font-semibold uppercase block mb-1">Message</span>
+        <div class="surface-ground p-3 border-round-lg font-mono text-xs text-800 line-height-3 white-space-pre-wrap border-1 surface-border" style="word-break: break-all;">
+          {{ selectedLog.status_message }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Close" [text]="true" severity="secondary" (onClick)="displayDetailDialog = false">
+    </p-button>
+  </ng-template>
+</p-dialog>

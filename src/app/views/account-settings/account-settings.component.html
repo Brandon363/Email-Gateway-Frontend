@@ -1,0 +1,123 @@
+<div class="min-h-screen surface-ground p-4 md:p-6">
+
+  <!-- Header Card -->
+  <div class="surface-card border-1 surface-border border-round-xl p-4 shadow-1 mb-4">
+    <h1 class="text-2xl font-bold text-900 m-0">Settings</h1>
+  </div>
+
+  <div class="grid">
+    <!-- User Profile Card -->
+    <div class="col-12 lg:col-6">
+      <div class="surface-card border-1 surface-border border-round-xl p-4 shadow-1 h-full flex flex-column justify-content-between">
+        <div>
+          <div class="flex align-items-center gap-3 mb-4">
+            <p-avatar [label]="(user?.first_name?.charAt(0) || 'B') + (user?.last_name?.charAt(0) || 'M')"
+              shape="circle" size="xlarge"
+              styleClass="bg-primary text-white font-bold text-xl flex-shrink-0"
+              [style]="{ width: '4rem', height: '4rem', 'border-radius': '50%' }">
+            </p-avatar>
+            <div>
+              <h2 class="text-xl font-bold text-900 m-0">{{ user?.first_name || 'Gateway' }} {{ user?.last_name || 'Admin' }}</h2>
+              <span class="text-sm text-500">{{ user?.email || 'brandon.mutombwa@dataalafrica.com' }}</span>
+            </div>
+          </div>
+
+          <div class="border-top-1 surface-border pt-3">
+            <div class="flex justify-content-between py-2 border-bottom-1 surface-border">
+              <span class="text-sm text-500">Role</span>
+              <span class="text-sm font-semibold text-900">{{ user?.user_role || 'ADMIN' }}</span>
+            </div>
+            <div class="flex justify-content-between py-2 border-bottom-1 surface-border">
+              <span class="text-sm text-500">Account Status</span>
+              <p-tag severity="success" value="Active"></p-tag>
+            </div>
+            <div class="flex justify-content-between py-2">
+              <span class="text-sm text-500">Theme</span>
+              <span class="text-sm font-semibold text-900">{{ app.darkMode() ? 'Dark' : 'Light' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-2 pt-4 border-top-1 surface-border mt-4 flex-wrap">
+          <p-button label="Change Password" icon="pi pi-key" size="small" [outlined]="true" severity="primary"
+            (onClick)="openChangePasswordDialog()">
+          </p-button>
+          <p-button label="Toggle Theme" icon="pi pi-palette" size="small" [outlined]="true" severity="secondary"
+            (onClick)="toggleTheme()">
+          </p-button>
+          <p-button label="Sign Out" icon="pi pi-sign-out" size="small" severity="danger" [outlined]="true"
+            (onClick)="logout()">
+          </p-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inbound Gateway Info -->
+    <div class="col-12 lg:col-6">
+      <div class="surface-card border-1 surface-border border-round-xl p-4 shadow-1 h-full flex flex-column justify-content-between">
+        <div>
+          <h2 class="text-lg font-bold text-900 m-0 mb-3">Gateway Configuration</h2>
+
+          <div class="flex flex-column gap-3">
+            <div class="p-3 surface-ground border-round-lg">
+              <span class="text-xs text-500 font-semibold uppercase block mb-1">Domain</span>
+              <span class="text-sm font-bold text-primary font-mono">mail.dataalafrica.com</span>
+            </div>
+
+            <div class="p-3 surface-ground border-round-lg">
+              <div class="flex justify-content-between align-items-center mb-1">
+                <span class="text-xs text-500 font-semibold uppercase">Webhook URL</span>
+                <button pButton icon="pi pi-copy" [rounded]="true" [text]="true" size="small" severity="secondary"
+                  (click)="copyWebhookUrl()" pTooltip="Copy">
+                </button>
+              </div>
+              <span class="text-xs font-mono text-900 block text-overflow-ellipsis overflow-hidden">{{ webhookUrl }}</span>
+            </div>
+
+            <div class="p-3 surface-ground border-round-lg">
+              <span class="text-xs text-500 font-semibold uppercase block mb-1">Security</span>
+              <span class="text-xs text-900 font-medium">Signature Verification Active</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Change Password Dialog -->
+<p-dialog [(visible)]="displayPasswordDialog" [modal]="true" [style]="{ width: '420px', maxWidth: '95vw' }" [draggable]="false" [resizable]="false">
+  <ng-template pTemplate="header">
+    <div class="flex align-items-center gap-2">
+      <i class="pi pi-key text-primary text-xl"></i>
+      <span class="font-bold text-lg text-900">Change Password</span>
+    </div>
+  </ng-template>
+
+  <div class="p-fluid pt-2">
+    <div class="mb-3">
+      <label class="block text-900 font-medium text-sm mb-1">Current Password <span class="text-red-500">*</span></label>
+      <p-password [(ngModel)]="oldPassword" [feedback]="false" [toggleMask]="true" placeholder="Enter current password" styleClass="w-full" inputStyleClass="w-full"></p-password>
+    </div>
+
+    <div class="mb-3">
+      <label class="block text-900 font-medium text-sm mb-1">New Password <span class="text-red-500">*</span></label>
+      <p-password [(ngModel)]="newPassword" [toggleMask]="true" placeholder="Min. 6 characters" styleClass="w-full" inputStyleClass="w-full"></p-password>
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-900 font-medium text-sm mb-1">Confirm New Password <span class="text-red-500">*</span></label>
+      <p-password [(ngModel)]="confirmPassword" [feedback]="false" [toggleMask]="true" placeholder="Re-enter new password" styleClass="w-full" inputStyleClass="w-full"></p-password>
+    </div>
+
+    <div class="flex justify-content-end gap-2 pt-3 border-top-1 surface-border">
+      <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="displayPasswordDialog = false">
+      </p-button>
+      <p-button label="Update Password" icon="pi pi-check" severity="primary"
+        [loading]="changingPassword"
+        [disabled]="!oldPassword || !newPassword || !confirmPassword"
+        (onClick)="submitChangePassword()">
+      </p-button>
+    </div>
+  </div>
+</p-dialog>

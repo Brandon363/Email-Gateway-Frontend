@@ -1,0 +1,173 @@
+// <div class="pt-3 lg:p-5 mx-3">
+//     <div class="flex flex-column lg:flex-row justify-content-between align-items-start mb-2">
+//         <div>
+//             <div class="text-4xl font-bold">Client Manager</div>
+//             <div class="text-500 mt-3 mb-5">Manage client verifications and reviews</div>
+//         </div>
+
+//         <div class="flex gap-3 justify-content-end md:justify-content-between align-items-center mb-2">
+//             <p-button label="Create client" icon="pi pi-user-plus" severity="primary" />
+//         </div>
+//     </div>
+
+//     <div class="mb-3 flex justify-content-end gap-3">
+//         <div class="flex flex-column md:flex-row md:justify-content-end mb-3">
+//             <p-floatlabel variant="on">
+//                 <input pInputText id="on_label" [(ngModel)]="tenderStatusSelectedValue" autocomplete="off"
+//                     placeholder="Search tenders by first name, last name, id number..." [fluid]="true"
+//                     (ngModelChange)="searchTenders($event)" />
+//                 <!-- <label for="on_label">On Label</label> -->
+//             </p-floatlabel>
+//         </div>
+//     </div>
+
+//     <div class="grid">
+//         <!-- <div class="" > -->
+//         <p-card class="col-12 md:col-6 lg:col-3" *ngFor="let item of cards">
+//             <!-- <div class="px-3 py-2"> -->
+//             <div class="flex justify-content-between align-items-center">
+//                 <div>
+//                     <div class="font-bold text-500 mb-2">{{item.title}}</div>
+//                     <h2 class="text-bold text-4xl my-2">{{item.value}}</h2>
+//                     <p class="m-0 p-0 text-500 text-sm">{{item.description}}</p>
+//                 </div>
+//                 <i [class]="item.icon" class="text-4xl"
+//                     [ngClass]="{'text-primary': true, 'text-red-500': item.title.includes('Flagged'), 'text-green-500': item.title.includes('Taxpayers')}"></i>
+//             </div>
+//             <!-- </div> -->
+//         </p-card>
+//     </div>
+//     <!-- </div> -->
+
+
+//     <div class="card p-4 surface-card shadow-3 border-0 border-round-2xl mt-4">
+//         <p class="font-bold text-2xl mt-2">Clients</p>
+
+//         <p-dataview #dv [value]="filteredUsers" [layout]="'grid'" [rows]="10" [paginator]="true" [sortField]="sortField"
+//             [sortOrder]="sortOrder">
+
+//             <ng-template #header>
+//                 <!-- <div class="flex flex-column md:flex-row md:justify-content-end mb-3">
+//                 <p-select [options]="sortOptions" [(ngModel)]="sortKey" placeholder="Sort By Deadline"
+//                     (onChange)="onSortChange($event)" class="mb-2 md:mb-0" />
+//             </div> -->
+//             </ng-template>
+
+//             <ng-template #grid let-items>
+//                 <div class="grid">
+//                     <div *ngFor="let user of items; let first = first" class="col-12 lg:col-12">
+//                         <div
+//                             class="card surface-card p-4 hover:shadow-3 transition-duration-400 border-1 surface-border border-round-lg h-full flex flex-column">
+//                             <div class="flex flex-column flex-grow-1"> <!-- Add flex-grow-1 here -->
+
+//                                 <!-- Header section -->
+//                                 <div class="flex align-items-center justify-content-between">
+//                                     <div>
+//                                         <div class="flex align-items-center ">
+//                                             <p-avatar [label]="user.first_name[0] + user.last_name[0]"
+//                                                 class="text-base text-700" styleClass="mr-4" size="large"
+//                                                 shape="circle" />
+//                                             <div class="flex flex-column gap-2">
+//                                                 <div class="flex align-items-center">
+//                                                     <div class="flex gap-1">
+//                                                         <div class="font-semibold text-900"
+//                                                             pTooltip="{{user.first_name| titlecase | highlightText:tenderStatusSelectedValue }}"
+//                                                             tooltipPosition="bottom"
+//                                                             [innerHTML]="user.first_name | titlecase | highlightText:tenderStatusSelectedValue">
+//                                                         </div>
+
+//                                                         <div class="font-semibold text-900 mr-3"
+//                                                             pTooltip="{{user.last_name| titlecase | highlightText:tenderStatusSelectedValue }}"
+//                                                             tooltipPosition="bottom"
+//                                                             [innerHTML]="user.last_name | titlecase | highlightText:tenderStatusSelectedValue">
+//                                                         </div>
+//                                                     </div>
+//                                                     <div>
+//                                                         <i *ngIf="user.verification_status === verificationStatus.VERIFIED"
+//                                                             class="pi pi-verified text-green-500" pTooltip="Verified"
+//                                                             tooltipPosition="bottom"></i>
+//                                                         <i *ngIf="user.verification_status === verificationStatus.REJECTED"
+//                                                             class="pi pi-times-circle text-red-500" pTooltip="Rejected"
+//                                                             tooltipPosition="bottom"></i>
+//                                                         <i *ngIf="user.verification_status === verificationStatus.PENDING"
+//                                                             class="pi pi-clock text-orange-500" pTooltip="Pending"
+//                                                             tooltipPosition="bottom"></i>
+//                                                         <i *ngIf="user.verification_status === verificationStatus.UNVERIFIED"
+//                                                             class="pi pi-exclamation-circle text-orange-500"
+//                                                             pTooltip="Unverified" tooltipPosition="bottom"></i>
+
+//                                                         <!-- <p-tag
+//                                                             *ngIf="user.verification_status === verificationStatus.VERIFIED"
+//                                                             value="Verified" class="text-xs" severity="success"
+//                                                             icon="pi pi-verified" [rounded]="true"/>
+//                                                         <p-tag
+//                                                             *ngIf="user.verification_status === verificationStatus.REJECTED"
+//                                                             value="Rejected" class="text-xs" severity="danger"
+//                                                             icon="pi pi-times-circle" [rounded]="true"/>
+//                                                         <p-tag
+//                                                             *ngIf="user.verification_status === verificationStatus.PENDING"
+//                                                             value="Pending" class="text-xs" severity="warn"
+//                                                             icon="pi pi-clock" [rounded]="true"/>
+//                                                         <p-tag
+//                                                             *ngIf="user.verification_status === verificationStatus.UNVERIFIED"
+//                                                             value="Unverified" class="text-xs" severity="warn"
+//                                                             icon="pi pi-exclamation-circle" [rounded]="true"/> -->
+//                                                     </div>
+//                                                 </div>
+//                                                 <div class="text-500 flex gap-3">
+//                                                     <span>{{user.email}}</span>
+//                                                     <span> ~ </span>
+//                                                     <span
+//                                                         [innerHTML]="user.id_number | titlecase | highlightText:tenderStatusSelectedValue"></span>
+//                                                 </div>
+//                                                 <div class="flex gap-2 mt-2">
+//                                                     <div class="text-blue-500 text-sm">Date Joined:</div>
+//                                                     <div class="text-600 text-sm">
+//                                                         {{user.date_created | date:'mediumDate'}}
+//                                                     </div>
+//                                                 </div>
+//                                             </div>
+//                                         </div>
+//                                     </div>
+//                                     <div class="w-3 flex gap-4 justify-content-between align-items-center">
+//                                         <div class="w-full">
+//                                             <div class="text-600 text-sm mb-2">Verification accuracy</div>
+//                                             <span *ngIf="user.extracted_users?.length === 0">--</span>
+//                                             <div *ngIf="user.extracted_users.length > 0">
+//                                                 <p-progressbar
+//                                                     *ngIf="user.extracted_users[user.extracted_users.length-1].overall_accuracy"
+//                                                     [value]="user.extracted_users[user.extracted_users.length-1].overall_accuracy * 100 | number:'1.0-0'"
+//                                                     [style]="{ height: '14px' }" />
+//                                             </div>
+//                                         </div>
+//                                         <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info"
+//                                             (click)="viewUserDetails(user)" pTooltip="View Details"
+//                                             tooltipPosition="bottom" />
+//                                     </div>
+//                                 </div>
+
+
+
+//                                 <!-- <div class="flex flex-wrap gap-2 align-items-stretch mt-4">
+//                                     <button pButton label="View Details" class="flex-grow-1 md:flex-grow-5"
+//                                         (click)="viewUserDetails(user)" icon="pi pi-eye"></button>
+//                                     <button pButton label="Analyze and Save" class="flex-grow-1 md:flex-grow-5"
+//                                         icon="pi pi-save" [outlined]="true" severity="help"></button>
+//                                 </div> -->
+//                             </div>
+//                         </div>
+//                     </div>
+//                 </div>
+//             </ng-template>
+//         </p-dataview>
+//     </div>
+// </div>
+
+
+
+// <!-- <p-dialog header="Edit Buffer Level" [modal]="true" [(visible)]="showEditProductBufferLevelDialog"
+//     *ngIf="showEditProductBufferLevelDialog" [style]="{ width: '50rem' }"
+//     [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="true">
+//     <app-add-product-buffer-level [selectedProductBufferLevel]="selectedProductBufferLevel"
+//         (onEditSuccess)="showEditProductBufferLevelDialog = false"></app-add-product-buffer-level>
+// </p-dialog> -->

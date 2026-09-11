@@ -1,0 +1,10 @@
+<p-timeline [value]="verificationTrackings" class="w-full">
+    <ng-template #content let-event>
+        <div class="text-900 font-bold">{{ event.stage }}</div>
+        <div class="text-700 mt-1">{{ event.notes }}</div>
+        <div class="text-600 mt-1 text-xs">{{ event.date_created | date:'medium' }}</div>
+        <div class="text-600 mt-1 text-xs text-primary mb-5">
+            {{ getUserFromId(event.action_performed_by_id)}}
+        </div>
+    </ng-template>
+</p-timeline>

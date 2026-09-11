@@ -1,0 +1,165 @@
+// @use '@fontsource/inter'; /* Load Inter font */
+/* You can add global styles to this file, and also import other style files */
+@import "../node_modules/primeflex/primeflex.css";
+@import "../node_modules/primeicons/primeicons.css";
+// @import "assets/themes/tailwind/tailwind-light/theme.scss";
+// @import "assets/themes/lara/lara-light/blue/theme.scss";
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+
+
+body {
+  // font-family: 'Open Sans', -apple-system, sans-serif; /* Override default */
+  font-family: 'Inter', -apple-system, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 15px;
+}
+
+.table-details tr td {
+  padding-left: 1rem;
+  padding-top: 0.8rem;
+  padding-bottom: 0.8rem;
+}
+
+.ellipsis-5-lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+  -webkit-box-orient: vertical;
+  box-orient: vertical;
+  overflow: hidden;
+}
+
+.ellipsis-3-lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5em;
+  /* adjust the line height */
+  padding-bottom: 0rem;
+  /* add some padding to the bottom */
+}
+
+// .ellipsis-3-lines {
+//   display: -webkit-box;
+//   -webkit-line-clamp: 3;
+//   line-clamp: 3;
+//   -webkit-box-orient: vertical;
+//   box-orient: vertical;
+//   overflow: hidden;
+// }
+
+.ellipsis-lines {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  box-orient: vertical;
+  overflow: hidden;
+  -webkit-line-clamp: var(--line-clamp);
+  line-clamp: var(--line-clamp);
+}
+
+.highlight {
+  background-color: yellow;
+}
+
+
+/* Scrollbar: both vertical (width) and horizontal (height) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(140, 140, 140, 0.45) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  /* controls horizontal scrollbar thickness */
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgba(140, 140, 140, 0.45);
+  border-radius: 6px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 140, 140, 0.75);
+}
+
+// ── Limpopo Health Department – Custom Styles ─────────────────────────────────
+
+// PAIA SLA Countdown Ring
+.countdown-ring {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 5px solid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.3s ease;
+  flex-shrink: 0;
+}
+
+// Overtime upload drag-and-drop zone (Dark & Light theme compatible)
+.upload-dropzone {
+  transition: all 0.25s ease;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-card);
+  border-color: var(--surface-border);
+
+  &:hover {
+    border-color: var(--primary-color) !important;
+    background: var(--surface-hover) !important;
+  }
+
+  &.drag-over {
+    border-color: var(--primary-color) !important;
+    background: var(--surface-hover) !important;
+    transform: scale(1.005);
+  }
+
+  &.has-file {
+    border-color: var(--primary-color) !important;
+  }
+}
+
+// Audit timeline compact layout
+.audit-timeline .p-timeline-event-content {
+  padding-bottom: 0;
+}
+
+// ── PrimeNG SelectButton Enhanced Padding ─────────────────────────────────────
+.p-selectbutton {
+  .p-togglebutton {
+    padding: 0.55rem 1.35rem !important;
+    font-size: 0.875rem;
+
+    &.p-togglebutton-sm,
+    &.p-button-sm {
+      padding: 0.45rem 1.25rem !important;
+    }
+
+    .p-togglebutton-content {
+      gap: 0.5rem;
+    }
+  }
+}
+
