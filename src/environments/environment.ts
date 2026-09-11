@@ -1,3 +1,3 @@
 export const environment = {
-    baseUrl: `https://email-gateway.api.dataalafrica.com`,
+    baseUrl: `https://email-gateway.api.dataalafrica.com/api/v1`,
 };
